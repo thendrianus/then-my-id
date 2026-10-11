@@ -1,0 +1,72 @@
+---
+import { render } from 'astro:content';
+import PlayActions from '../../components/PlayActions.astro';
+import Base from '../../layouts/Base.astro';
+import { getHymns, type Hymn, hymnToItem } from '../../lib/content';
+
+export async function getStaticPaths() {
+  const hymns = await getHymns();
+  return hymns.map((hymn) => ({ params: { id: hymn.id }, props: { hymn } }));
+}
+
+interface Props {
+  hymn: Hymn;
+}
+const { hymn } = Astro.props;
+const { title, lyricist, composer, tune, year, performer, credit, creditUrl, tags, lang } = hymn.data;
+const { Content } = await render(hymn);
+const facts = [
+  ['Words', lyricist],
+  ['Music', composer],
+  ['Tune', tune],
+  ['Year', year],
+  ['Recording', performer],
+].filter(([, v]) => v);
+---
+
+<Base title={title} description={`Lyrics and recording of “${title}”.`}>
+  <article lang={lang}>
+    <header class="article-head">
+      <p class="eyebrow"><a href="/hymns/">Songs</a></p>
+      <h1>{title}</h1>
+      {
+        facts.length > 0 && (
+          <dl class="facts">
+            {facts.map(([k, v]) => (
+              <>
+                <dt>{k}</dt>
+                <dd>{v}</dd>
+              </>
+            ))}
+          </dl>
+        )
+      }
+      <PlayActions items={[hymnToItem(hymn)]} label="Play" />
+    </header>
+
+    <div class="lyrics">
+      <Content />
+    </div>
+
+    <footer class="post-foot">
+      {
+        tags.length > 0 && (
+          <ul class="chips">
+            {tags.map((t) => (
+              <li>
+                <span class="chip tag">{t}</span>
+              </li>
+            ))}
+          </ul>
+        )
+      }
+      {
+        credit && (
+          <p class="credit">
+            Recording: {creditUrl ? <a href={creditUrl} rel="noopener" target="_blank">{credit}</a> : credit}
+          </p>
+        )
+      }
+    </footer>
+  </article>
+</Base>

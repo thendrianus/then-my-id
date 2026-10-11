@@ -1,0 +1,84 @@
+---
+import Icon from './Icon.astro';
+---
+
+<div id="player" class="player" transition:persist="player" hidden data-status="idle">
+  <section class="player-queue" id="player-queue" aria-label="Queue" hidden>
+    <header class="queue-head">
+      <h2>Queue</h2>
+      <div class="queue-tools">
+        <button type="button" class="btn btn-ghost btn-sm" data-cmd="shuffle"><Icon name="shuffle" size={16} />Shuffle</button>
+        <button type="button" class="btn btn-ghost btn-sm" data-cmd="clear">Clear</button>
+        <button type="button" class="icon-btn" data-cmd="close-queue" aria-label="Close queue"><Icon name="close" /></button>
+      </div>
+    </header>
+    <ol class="queue-list"></ol>
+    <div class="queue-backsound" hidden>
+      <span class="queue-backsound-name"></span>
+      <input type="range" min="0" max="2" step="0.05" value="1" aria-label="Background sound volume" />
+    </div>
+    <label class="queue-voice" hidden>
+      <span>Reading voice</span>
+      <select></select>
+    </label>
+    <template id="queue-row">
+      <li class="queue-row">
+        <button type="button" class="queue-play" data-cmd="jump">
+          <span class="kind-icon kind-post"><Icon name="book" size={16} /></span>
+          <span class="kind-icon kind-hymn"><Icon name="music" size={16} /></span>
+          <span class="queue-titles">
+            <span class="queue-title"></span>
+            <span class="queue-sub"></span>
+          </span>
+        </button>
+        <button type="button" class="icon-btn" data-cmd="up" aria-label="Move up"><Icon name="up" size={16} /></button>
+        <button type="button" class="icon-btn" data-cmd="down" aria-label="Move down"><Icon name="down" size={16} /></button>
+        <button type="button" class="icon-btn" data-cmd="remove" aria-label="Remove from queue"><Icon name="close" size={16} /></button>
+      </li>
+    </template>
+  </section>
+
+  <div class="player-bar">
+    <input class="player-seek" type="range" min="0" max="0" value="0" step="any" aria-label="Position" disabled />
+    <div class="player-row">
+      <a class="player-now" href="/">
+        <span class="kind-icon kind-post"><Icon name="book" /></span>
+        <span class="kind-icon kind-hymn"><Icon name="music" /></span>
+        <span class="player-titles">
+          <span class="player-title"></span>
+          <span class="player-sub"></span>
+        </span>
+      </a>
+
+      <div class="player-controls">
+        <button type="button" class="icon-btn hide-sm" data-cmd="prev" aria-label="Previous" title="Previous"><Icon name="prev" /></button>
+        <button type="button" class="icon-btn" data-cmd="back" aria-label="Back 10 seconds"><Icon name="back" /></button>
+        <button type="button" class="player-toggle" data-cmd="toggle" aria-label="Play">
+          <span class="when-idle"><Icon name="play" size={22} /></span>
+          <span class="when-playing"><Icon name="pause" size={22} /></span>
+          <span class="spinner" aria-hidden="true"></span>
+        </button>
+        <button type="button" class="icon-btn" data-cmd="forward" aria-label="Forward 10 seconds"><Icon name="forward" /></button>
+        <button type="button" class="icon-btn" data-cmd="next" aria-label="Next" title="Next"><Icon name="next" /></button>
+      </div>
+
+      <div class="player-extra">
+        <span class="player-time" aria-hidden="true"></span>
+        <button type="button" class="icon-btn player-backsound" data-cmd="backsound" aria-pressed="true" hidden><Icon name="waves" /></button>
+        <button type="button" class="player-rate" data-cmd="rate" title="Playback speed" aria-label="Playback speed">1×</button>
+        <button type="button" class="icon-btn hide-sm player-repeat" data-cmd="repeat" aria-pressed="false"><Icon name="repeat" /><span class="repeat-one">1</span></button>
+        <button type="button" class="icon-btn player-queue-btn" data-cmd="queue" aria-expanded="false" aria-controls="player-queue" title="Queue">
+          <Icon name="queue" /><span class="player-count">0</span>
+        </button>
+      </div>
+    </div>
+    <p class="player-caption" hidden></p>
+    <p class="player-error" role="alert" hidden></p>
+  </div>
+  <div class="player-toast" role="status" hidden></div>
+</div>
+
+<script>
+  import { initPlayerUI } from '../lib/player/ui';
+  initPlayerUI();
+</script>

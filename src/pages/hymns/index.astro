@@ -1,0 +1,49 @@
+---
+import MediaList from '../../components/MediaList.astro';
+import PlayActions from '../../components/PlayActions.astro';
+import Base from '../../layouts/Base.astro';
+import { getHymns, hymnToItem, slugify } from '../../lib/content';
+
+const hymns = await getHymns();
+const items = hymns.map(hymnToItem);
+const themes = [...new Set(hymns.flatMap((h) => h.data.tags))].sort();
+---
+
+<Base title="Songs" description="Hymns and songs I love, with lyrics.">
+  <header class="page-head">
+    <h1>Songs</h1>
+    <p>Songs I keep coming back to. Each one has its lyrics. Press play on any row to play the list from there.</p>
+    <PlayActions items={items} label="Play all" shuffle />
+  </header>
+
+  {
+    themes.length > 0 && (
+      <ul class="chips" style="margin-bottom:1.5rem" aria-label="Themes">
+        {themes.map((t) => (
+          <li>
+            <a class="chip tag" href={`#${slugify(t)}`}>
+              {t}
+            </a>
+          </li>
+        ))}
+      </ul>
+    )
+  }
+
+  <MediaList items={items} />
+
+  {
+    themes.map((theme) => {
+      const inTheme = hymns.filter((h) => h.data.tags.includes(theme)).map(hymnToItem);
+      return (
+        <section class="section" id={slugify(theme)}>
+          <div class="section-head">
+            <h2>{theme}</h2>
+            <PlayActions items={inTheme} label="Play" variant="compact" />
+          </div>
+          <MediaList items={inTheme} />
+        </section>
+      );
+    })
+  }
+</Base>

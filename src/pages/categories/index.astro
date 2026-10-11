@@ -1,0 +1,49 @@
+---
+import Base from '../../layouts/Base.astro';
+import { collectTags, getCategories, getPosts, postsInCategory } from '../../lib/content';
+
+const posts = await getPosts();
+const categories = (await getCategories()).map((c) => ({ ...c, count: postsInCategory(posts, c.id).length }));
+const tags = collectTags(posts);
+---
+
+<Base title="Categories" description="Every note, sorted by category.">
+  <header class="page-head">
+    <h1>Categories</h1>
+    <p>Each note belongs to one or more categories. Tags cut across them.</p>
+  </header>
+
+  <ul class="cat-grid">
+    {
+      categories.map((c) => (
+        <li>
+          <a class="cat-card" href={`/categories/${c.id}/`}>
+            <h3>{c.data.name}</h3>
+            <p>{c.data.description}</p>
+            <span class="count">{c.count === 0 ? 'Nothing yet' : `${c.count} ${c.count === 1 ? 'note' : 'notes'}`}</span>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+
+  {
+    tags.length > 0 && (
+      <section class="section">
+        <div class="section-head">
+          <h2>Tags</h2>
+          <a href="/tags/">All tags →</a>
+        </div>
+        <ul class="chips">
+          {tags.map((t) => (
+            <li>
+              <a class="chip tag" href={`/tags/${t.slug}/`}>
+                {t.name} <span class="count">{t.posts.length}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )
+  }
+</Base>

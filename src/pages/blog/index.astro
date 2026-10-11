@@ -1,0 +1,149 @@
+---
+import Icon from '../../components/Icon.astro';
+import PlayActions from '../../components/PlayActions.astro';
+import PostCard from '../../components/PostCard.astro';
+import Base from '../../layouts/Base.astro';
+import { collectTags, FORMAT_LABELS, getCategories, getPosts, postsInCategory, postToItem, slugify } from '../../lib/content';
+
+const posts = await getPosts();
+const categories = (await getCategories())
+  .map((c) => ({ id: c.id, name: c.data.name, count: postsInCategory(posts, c.id).length }))
+  .filter((c) => c.count > 0);
+const formats = Object.entries(FORMAT_LABELS)
+  .map(([id, name]) => ({ id, name, count: posts.filter((p) => p.data.format === id).length }))
+  .filter((f) => f.count > 0);
+const tags = collectTags(posts);
+---
+
+<Base title="Notes" description="Summaries of articles, videos and books, by category.">
+  <header class="page-head">
+    <h1>Notes</h1>
+    <p>Summaries of what I read and watch. Filter by category, format or tag, or search. Then play what you found.</p>
+  </header>
+
+  <div class="filters" id="post-filter">
+    <label class="search">
+      <Icon name="search" size={18} />
+      <input type="search" name="q" placeholder="Search titles, summaries, authors, tags…" aria-label="Search notes" />
+    </label>
+    <div class="filter-group">
+      <span>Category</span>
+      <div class="chips" data-filter="category">
+        {categories.map((c) => <button type="button" class="chip" data-value={c.id} aria-pressed="false">{c.name} <span class="count">{c.count}</span></button>)}
+      </div>
+    </div>
+    <div class="filter-group">
+      <span>Format</span>
+      <div class="chips" data-filter="format">
+        {formats.map((f) => <button type="button" class="chip" data-value={f.id} aria-pressed="false">{f.name} <span class="count">{f.count}</span></button>)}
+      </div>
+    </div>
+    {
+      tags.length > 0 && (
+        <div class="filter-group">
+          <span>Tag</span>
+          <div class="chips" data-filter="tag">
+            {tags.slice(0, 24).map((t) => <button type="button" class="chip tag" data-value={t.slug} aria-pressed="false">{t.name}</button>)}
+            {tags.length > 24 && <a class="chip" href="/tags/">All tags →</a>}
+          </div>
+        </div>
+      )
+    }
+  </div>
+
+  <div class="result-bar">
+    <span id="post-count" aria-live="polite">{posts.length} {posts.length === 1 ? 'note' : 'notes'}</span>
+    <div id="play-filtered">
+      <PlayActions items={posts.map(postToItem)} label="Listen to these" />
+    </div>
+  </div>
+
+  <ul class="card-list" id="post-list">
+    {
+      posts.map((post) => (
+        <li
+          data-category={post.data.categories.map((c) => c.id).join(' ')}
+          data-format={post.data.format}
+          data-tag={post.data.tags.map(slugify).join(' ')}
+          data-text={[post.data.title, post.data.summary, post.data.source?.title, post.data.source?.author, ...post.data.tags]
+            .filter(Boolean)
+            .join(' ')
+            .toLowerCase()}
+        >
+          <PostCard post={post} />
+        </li>
+      ))
+    }
+  </ul>
+  <p class="empty" id="post-empty" hidden>Nothing matches those filters.</p>
+</Base>
+
+<script>
+  type Key = 'category' | 'format' | 'tag';
+
+  function initFilters() {
+    const root = document.getElementById('post-filter');
+    const list = document.getElementById('post-list');
+    if (!root || !list) return;
+    const input = root.querySelector<HTMLInputElement>('input[name="q"]')!;
+    const rows = [...list.querySelectorAll<HTMLLIElement>(':scope > li')];
+    const count = document.getElementById('post-count')!;
+    const empty = document.getElementById('post-empty')!;
+    const playHost = document.querySelector<HTMLElement>('#play-filtered [data-player-items]');
+
+    const params = new URLSearchParams(location.search);
+    const state: Record<Key, string> = {
+      category: params.get('category') ?? '',
+      format: params.get('format') ?? '',
+      tag: params.get('tag') ?? '',
+    };
+    input.value = params.get('q') ?? '';
+
+    function apply() {
+      const q = input.value.trim().toLowerCase();
+      const words = q.split(/\s+/).filter(Boolean);
+      const items = [];
+      let shown = 0;
+      for (const row of rows) {
+        const match =
+          (Object.keys(state) as Key[]).every((k) => !state[k] || (row.dataset[k] ?? '').split(' ').includes(state[k])) &&
+          words.every((w) => (row.dataset.text ?? '').includes(w));
+        row.hidden = !match;
+        if (match) {
+          shown++;
+          const item = row.querySelector<HTMLElement>('[data-player-items]')?.dataset.playerItems;
+          if (item) items.push(...JSON.parse(item));
+        }
+      }
+      count.textContent = `${shown} ${shown === 1 ? 'note' : 'notes'}`;
+      empty.hidden = shown > 0;
+      if (playHost) {
+        playHost.dataset.playerItems = JSON.stringify(items);
+        playHost.hidden = shown === 0;
+      }
+      for (const group of root!.querySelectorAll<HTMLElement>('[data-filter]')) {
+        const key = group.dataset.filter as Key;
+        for (const chip of group.querySelectorAll<HTMLElement>('[data-value]')) {
+          chip.setAttribute('aria-pressed', String(chip.dataset.value === state[key]));
+        }
+      }
+      const url = new URL(location.href);
+      for (const k of Object.keys(state) as Key[]) state[k] ? url.searchParams.set(k, state[k]) : url.searchParams.delete(k);
+      q ? url.searchParams.set('q', input.value.trim()) : url.searchParams.delete('q');
+      history.replaceState(history.state, '', url);
+    }
+
+    root.addEventListener('click', (e) => {
+      const chip = (e.target as HTMLElement).closest<HTMLElement>('button[data-value]');
+      const group = chip?.closest<HTMLElement>('[data-filter]');
+      if (!chip || !group) return;
+      const key = group.dataset.filter as Key;
+      state[key] = state[key] === chip.dataset.value ? '' : (chip.dataset.value ?? '');
+      apply();
+    });
+    input.addEventListener('input', apply);
+    apply();
+  }
+
+  document.addEventListener('astro:page-load', initFilters);
+</script>

@@ -1,0 +1,22 @@
+# Every category a note can use. The key (left) is what you put in a note's
+# `categories:` list and becomes the URL: /categories/<key>/
+# Add, rename or remove categories here — a note using a missing one fails the build.
+
+faith:
+  name: Faith & Theology
+  description: Books, sermons and talks about God, Scripture and the Christian life.
+work:
+  name: Work & Craft
+  description: How to do good work, build things, and get better at a craft.
+learning:
+  name: Learning & Thinking
+  description: Ideas about thinking clearly, learning faster and making better decisions.
+habits:
+  name: Habits & Self-improvement
+  description: Practical notes on routines, discipline and personal growth.
+life:
+  name: Life & Meaning
+  description: Talks and essays about purpose, mortality and what matters.
+technology:
+  name: Technology
+  description: Software, AI and the tools that shape how we live and work.

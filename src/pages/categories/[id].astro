@@ -1,0 +1,44 @@
+---
+import PlayActions from '../../components/PlayActions.astro';
+import PostCard from '../../components/PostCard.astro';
+import Base from '../../layouts/Base.astro';
+import { type Category, getCategories, getPosts, type Post, postsInCategory, postToItem } from '../../lib/content';
+
+export async function getStaticPaths() {
+  const posts = await getPosts();
+  const categories = await getCategories();
+  return categories.map((category) => ({
+    params: { id: category.id },
+    props: { category, posts: postsInCategory(posts, category.id) },
+  }));
+}
+
+interface Props {
+  category: Category;
+  posts: Post[];
+}
+const { category, posts } = Astro.props;
+---
+
+<Base title={category.data.name} description={category.data.description}>
+  <header class="page-head">
+    <p class="eyebrow"><a href="/categories/">Categories</a></p>
+    <h1>{category.data.name}</h1>
+    <p>{category.data.description}</p>
+    <PlayActions items={posts.map(postToItem)} label={`Listen to all ${posts.length}`} shuffle />
+  </header>
+
+  {
+    posts.length ? (
+      <ul class="card-list">
+        {posts.map((post) => (
+          <li>
+            <PostCard post={post} />
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <p class="empty">No notes in this category yet.</p>
+    )
+  }
+</Base>

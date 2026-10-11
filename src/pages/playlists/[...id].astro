@@ -1,0 +1,33 @@
+---
+import { type CollectionEntry, getCollection, render } from 'astro:content';
+import MediaList from '../../components/MediaList.astro';
+import PlayActions from '../../components/PlayActions.astro';
+import Base from '../../layouts/Base.astro';
+import { hymnToItem, postToItem, resolvePlaylist } from '../../lib/content';
+
+export async function getStaticPaths() {
+  const playlists = await getCollection('playlists');
+  return playlists.map((playlist) => ({ params: { id: playlist.id }, props: { playlist } }));
+}
+
+interface Props {
+  playlist: CollectionEntry<'playlists'>;
+}
+const { playlist } = Astro.props;
+const entries = await resolvePlaylist(playlist);
+const items = entries.map((e) => (e.kind === 'post' ? postToItem(e.entry) : hymnToItem(e.entry)));
+const { Content } = await render(playlist);
+---
+
+<Base title={playlist.data.title} description={playlist.data.description}>
+  <header class="page-head">
+    <p class="eyebrow"><a href="/playlists/">Playlists</a></p>
+    <h1>{playlist.data.title}</h1>
+    <p>{playlist.data.description}</p>
+    <PlayActions items={items} label="Play playlist" shuffle />
+  </header>
+  <div class="prose" style="margin-bottom:1.5rem">
+    <Content />
+  </div>
+  <MediaList items={items} mixed />
+</Base>

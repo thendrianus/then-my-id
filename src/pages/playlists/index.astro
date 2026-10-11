@@ -1,0 +1,42 @@
+---
+import { getCollection } from 'astro:content';
+import Icon from '../../components/Icon.astro';
+import PlayActions from '../../components/PlayActions.astro';
+import Base from '../../layouts/Base.astro';
+import { hymnToItem, postToItem, resolvePlaylist } from '../../lib/content';
+
+const playlists = await Promise.all(
+  (await getCollection('playlists')).map(async (p) => {
+    const entries = await resolvePlaylist(p);
+    return {
+      playlist: p,
+      items: entries.map((e) => (e.kind === 'post' ? postToItem(e.entry) : hymnToItem(e.entry))),
+    };
+  }),
+);
+---
+
+<Base title="Playlists" description="Notes and songs, mixed into playlists.">
+  <header class="page-head">
+    <h1>Playlists</h1>
+    <p>Notes (read aloud) and songs mixed together. Your own queue lives in the player, at the bottom right.</p>
+  </header>
+
+  <ul class="cat-grid">
+    {
+      playlists.map(({ playlist, items }) => (
+        <li class="playlist-card">
+          <h3>
+            <a href={`/playlists/${playlist.id}/`}>{playlist.data.title}</a>
+          </h3>
+          <p>{playlist.data.description}</p>
+          <span class="mix">
+            <Icon name="book" size={14} /> {items.filter((i) => i.kind === 'post').length} notes · <Icon name="music" size={14} />{' '}
+            {items.filter((i) => i.kind === 'hymn').length} songs
+          </span>
+          <PlayActions items={items} label="Play" variant="compact" />
+        </li>
+      ))
+    }
+  </ul>
+</Base>

@@ -1,0 +1,49 @@
+# Background sounds that play quietly under a note while it's read aloud.
+# In a note's frontmatter, pick one by its key:   backsound: rain
+#
+#   name:      shown in the player
+#   audio:     a file in public/audio/backsounds/ (e.g. /audio/backsounds/rain.mp3) or a full URL; it loops
+#   volume:    0–1, how loud under the voice (listeners can still turn it up/down or off)
+#   credit:    required for CC BY / CC BY-SA recordings; shown on /credits/
+
+rain:
+  name: Light rain
+  audio: https://upload.wikimedia.org/wikipedia/commons/transcoded/b/b6/Light_Rain_Distant_Thunder_July_5th_2016.wav/Light_Rain_Distant_Thunder_July_5th_2016.wav.mp3
+  volume: 0.3
+  credit: kvgarlic, CC0, via Wikimedia Commons
+  creditUrl: https://commons.wikimedia.org/wiki/File:Light_Rain_Distant_Thunder_July_5th_2016.wav
+
+ocean:
+  name: Ocean waves
+  audio: https://upload.wikimedia.org/wikipedia/commons/transcoded/6/64/Ocean_Waves_on_a_Tropical_Beach.ogg/Ocean_Waves_on_a_Tropical_Beach.ogg.mp3
+  volume: 0.2
+  credit: Jarrod Stanley, CC0, via Wikimedia Commons
+  creditUrl: https://commons.wikimedia.org/wiki/File:Ocean_Waves_on_a_Tropical_Beach.ogg
+
+stream:
+  name: Flowing stream
+  audio: https://upload.wikimedia.org/wikipedia/commons/transcoded/4/4f/Water_flowing_pouring_trickling.ogg/Water_flowing_pouring_trickling.ogg.mp3
+  volume: 0.15
+  credit: stephan, public domain, via Wikimedia Commons
+  creditUrl: https://commons.wikimedia.org/wiki/File:Water_flowing_pouring_trickling.ogg
+
+birds:
+  name: Morning birdsong
+  audio: https://upload.wikimedia.org/wikipedia/commons/transcoded/e/e7/Birdsong_morning_01.ogg/Birdsong_morning_01.ogg.mp3
+  volume: 0.25
+  credit: Matutinho, CC BY-SA 4.0, via Wikimedia Commons
+  creditUrl: https://commons.wikimedia.org/wiki/File:Birdsong_morning_01.ogg
+
+spiritual:
+  name: Spiritual ambient (piano)
+  audio: https://upload.wikimedia.org/wikipedia/commons/transcoded/e/e8/Spiritual_Ambient_by_MusicLFiles.ogg/Spiritual_Ambient_by_MusicLFiles.ogg.mp3
+  volume: 0.12
+  credit: “Spiritual Ambient” by MusicLFiles, CC BY 4.0, via Wikimedia Commons
+  creditUrl: https://commons.wikimedia.org/wiki/File:Spiritual_Ambient_by_MusicLFiles.ogg
+
+calm:
+  name: Calm ambient (piano)
+  audio: https://upload.wikimedia.org/wikipedia/commons/transcoded/5/53/Placid_Ambient_by_MusicLFiles.ogg/Placid_Ambient_by_MusicLFiles.ogg.mp3
+  volume: 0.12
+  credit: “Placid Ambient” by MusicLFiles, CC BY 4.0, via Wikimedia Commons
+  creditUrl: https://commons.wikimedia.org/wiki/File:Placid_Ambient_by_MusicLFiles.ogg

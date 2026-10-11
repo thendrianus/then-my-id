@@ -1,0 +1,33 @@
+---
+import { getEntry } from 'astro:content';
+import { FORMAT_LABELS, formatDate, type Post, postToItem } from '../lib/content';
+import Icon from './Icon.astro';
+import PlayActions from './PlayActions.astro';
+
+interface Props {
+  post: Post;
+}
+const { post } = Astro.props;
+const { title, summary, date, format, categories, rating, source } = post.data;
+const cats = (await Promise.all(categories.map((c) => getEntry(c)))).filter((c) => c !== undefined);
+const item = postToItem(post);
+const formatIcon = format === 'video' || format === 'talk' ? 'video' : 'book';
+---
+
+<article class="post-card" data-player-key={item.key}>
+  <div>
+    <div class="meta">
+      <span class="badge"><Icon name={formatIcon} size={14} />{FORMAT_LABELS[format]}</span>
+      <time datetime={date.toISOString()}>{formatDate(date)}</time>
+      {source?.author && <span>{source.author}</span>}
+      {rating && <span class="stars" aria-label={`${rating} out of 5`}>{'★'.repeat(rating)}</span>}
+      {post.data.draft && <span class="badge hymn">Draft</span>}
+    </div>
+    <h3><a href={`/blog/${post.id}/`}>{title}</a></h3>
+  </div>
+  <PlayActions items={[item]} label="Listen" variant="compact" />
+  <p class="summary">{summary}</p>
+  <ul class="chips">
+    {cats.map((c) => <li><a class="chip cat" href={`/categories/${c.id}/`}>{c.data.name}</a></li>)}
+  </ul>
+</article>

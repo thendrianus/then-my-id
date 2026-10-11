@@ -1,0 +1,31 @@
+---
+import type { PlayerItem } from '../lib/player/types';
+import PlayActions from './PlayActions.astro';
+
+interface Props {
+  items: PlayerItem[];
+  /** Show "Read aloud" next to posts, for lists that mix posts and hymns. */
+  mixed?: boolean;
+}
+const { items, mixed = false } = Astro.props;
+---
+
+<ol class="hymn-list" data-player-context={JSON.stringify(items)}>
+  {
+    items.map((item, i) => (
+      <li class="hymn-row" data-player-key={item.key} data-kind={item.kind}>
+        <span class="num">{i + 1}</span>
+        <span>
+          <a class="title" href={item.href}>
+            {item.title}
+          </a>
+          <span class="sub">
+            {mixed && (item.kind === 'post' ? 'Note · read aloud · ' : 'Song · ')}
+            {item.subtitle}
+          </span>
+        </span>
+        <PlayActions items={[item]} label={item.kind === 'post' ? 'Listen' : 'Play'} variant="compact" start={i} />
+      </li>
+    ))
+  }
+</ol>

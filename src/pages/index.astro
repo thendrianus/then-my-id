@@ -1,0 +1,107 @@
+---
+import { getCollection } from 'astro:content';
+import Icon from '../components/Icon.astro';
+import MediaList from '../components/MediaList.astro';
+import PlayActions from '../components/PlayActions.astro';
+import PostCard from '../components/PostCard.astro';
+import Base from '../layouts/Base.astro';
+import { getCategories, getHymns, getPosts, hymnToItem, postsInCategory, postToItem, resolvePlaylist } from '../lib/content';
+
+const posts = await getPosts();
+const hymns = await getHymns();
+const categories = (await getCategories())
+  .map((c) => ({ ...c, count: postsInCategory(posts, c.id).length }))
+  .filter((c) => c.count > 0);
+const playlists = await Promise.all(
+  (await getCollection('playlists')).map(async (p) => ({ playlist: p, entries: await resolvePlaylist(p) })),
+);
+
+const latest = posts.slice(0, 5);
+const hymnItems = hymns.map(hymnToItem);
+const listenToLatest = latest.map(postToItem);
+---
+
+<Base>
+  <section class="hero">
+    <p class="eyebrow">A commonplace book</p>
+    <h1>Things I read, things I watched, and <em>songs</em> I keep singing.</h1>
+    <p>
+      Short notes on articles, videos and books, sorted so I can find them again. Every note can be read aloud, and
+      every song can be played. Queue them together and listen while you do something else.
+    </p>
+    <PlayActions items={[...listenToLatest, ...hymnItems.slice(0, 2)]} label="Listen to the latest" />
+  </section>
+
+  <div class="two-col section">
+    <section aria-labelledby="latest">
+      <div class="section-head">
+        <h2 id="latest">Latest notes</h2>
+        <a href="/blog/">All {posts.length} {posts.length === 1 ? 'note' : 'notes'} →</a>
+      </div>
+      <ul class="card-list">
+        {latest.map((post) => <li><PostCard post={post} /></li>)}
+      </ul>
+    </section>
+
+    <div>
+      <section aria-labelledby="hymns">
+        <div class="section-head">
+          <h2 id="hymns">Songs</h2>
+          <a href="/hymns/">All songs →</a>
+        </div>
+        <MediaList items={hymnItems.slice(0, 6)} />
+        <div style="margin-top:1rem">
+          <PlayActions items={hymnItems} label="Play all songs" shuffle variant="full" />
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="cats">
+        <div class="section-head">
+          <h2 id="cats">Categories</h2>
+          <a href="/categories/">Browse →</a>
+        </div>
+        <ul class="chips">
+          {
+            categories.map((c) => (
+              <li>
+                <a class="chip cat" href={`/categories/${c.id}/`}>
+                  {c.data.name} <span class="count">{c.count}</span>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </section>
+
+      {
+        playlists.length > 0 && (
+          <section class="section" aria-labelledby="playlists">
+            <div class="section-head">
+              <h2 id="playlists">Playlists</h2>
+              <a href="/playlists/">All →</a>
+            </div>
+            <ul class="card-list">
+              {playlists.map(({ playlist, entries }) => (
+                <li class="playlist-card">
+                  <h3>
+                    <a href={`/playlists/${playlist.id}/`}>{playlist.data.title}</a>
+                  </h3>
+                  <p>{playlist.data.description}</p>
+                  <span class="mix">
+                    <Icon name="book" size={14} /> {entries.filter((e) => e.kind === 'post').length} notes ·{' '}
+                    <Icon name="music" size={14} /> {entries.filter((e) => e.kind === 'hymn').length} songs
+                  </span>
+                  <PlayActions
+                    items={entries.map((e) => (e.kind === 'post' ? postToItem(e.entry) : hymnToItem(e.entry)))}
+                    label="Play"
+                    variant="compact"
+                  />
+                </li>
+              ))}
+            </ul>
+          </section>
+        )
+      }
+    </div>
+  </div>
+</Base>

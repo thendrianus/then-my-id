@@ -1,0 +1,80 @@
+---
+import { Font } from 'astro:assets';
+import { ClientRouter } from 'astro:transitions';
+import Icon from '../components/Icon.astro';
+import Player from '../components/Player.astro';
+import { AUTHOR, REPO_URL, SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+  type?: 'website' | 'article';
+}
+
+const { title, description = SITE_DESCRIPTION, type = 'website' } = Astro.props;
+const fullTitle = title ? `${title} · ${SITE_TITLE}` : SITE_TITLE;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const path = Astro.url.pathname;
+const nav = [
+  { href: '/blog/', label: 'Notes' },
+  { href: '/categories/', label: 'Categories' },
+  { href: '/hymns/', label: 'Songs' },
+  { href: '/playlists/', label: 'Playlists' },
+];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <meta name="author" content={AUTHOR} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="alternate" type="application/rss+xml" title={SITE_TITLE} href="/rss.xml" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <meta name="color-scheme" content="light dark" />
+    <meta property="og:type" content={type} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:site_name" content={SITE_TITLE} />
+    <Font cssVariable="--font-display" preload />
+    <Font cssVariable="--font-prose" />
+    <ClientRouter />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header">
+      <div class="wrap header-inner">
+        <a class="brand" href="/">then<span>.my.id</span></a>
+        <nav aria-label="Main">
+          {
+            nav.map((n) => (
+              <a href={n.href} aria-current={path.startsWith(n.href) ? 'page' : undefined}>
+                {n.label}
+              </a>
+            ))
+          }
+        </nav>
+      </div>
+    </header>
+
+    <main id="main" class="wrap">
+      <slot />
+    </main>
+
+    <footer class="site-footer wrap">
+      <p>{SITE_DESCRIPTION}</p>
+      <p>
+        <a href="/tags/">All tags</a> · <a href="/credits/">Credits</a> · <a href="/rss.xml"><Icon name="rss" size={14} /> RSS</a>
+        {REPO_URL && <> · <a href={REPO_URL}>Source</a></>}
+      </p>
+    </footer>
+
+    <Player />
+  </body>
+</html>

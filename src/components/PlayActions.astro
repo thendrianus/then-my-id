@@ -1,0 +1,61 @@
+---
+import type { PlayerItem } from '../lib/player/types';
+import Icon from './Icon.astro';
+
+interface Props {
+  items: PlayerItem[];
+  /** Text of the main button, e.g. "Listen", "Play", "Play all". */
+  label?: string;
+  /** "full" shows labelled buttons; "compact" shows icon buttons for lists. */
+  variant?: 'full' | 'compact';
+  shuffle?: boolean;
+  /**
+   * Position of this item inside the closest `[data-player-context]` list.
+   * When set, "play" plays that whole list starting here.
+   */
+  start?: number;
+}
+
+const { items, label = 'Play', variant = 'full', shuffle = false, start } = Astro.props;
+const single = items.length === 1 ? items[0] : undefined;
+const what = single ? single.title : `${items.length} items`;
+---
+
+{
+  items.length > 0 && (
+    <div
+      class:list={['play-actions', variant]}
+      data-player-items={JSON.stringify(items)}
+      data-player-key={single?.key}
+      data-player-start={start}
+    >
+      <button type="button" class="btn btn-play" data-player-action="play" data-label={label} aria-label={variant === 'compact' ? `${label}: ${what}` : undefined}>
+        <span class="when-idle"><Icon name="play" size={variant === 'compact' ? 16 : 18} /></span>
+        <span class="when-playing"><Icon name="pause" size={variant === 'compact' ? 16 : 18} /></span>
+        {variant === 'full' && <span class="label">{label}</span>}
+      </button>
+      {shuffle && items.length > 1 && (
+        <button type="button" class="btn btn-ghost" data-player-action="shuffle">
+          <Icon name="shuffle" size={18} />
+          <span class="label">Shuffle</span>
+        </button>
+      )}
+      <button
+        type="button"
+        class="btn btn-ghost"
+        data-player-action="queue"
+        aria-label={variant === 'compact' ? `Add to queue: ${what}` : undefined}
+        title="Add to queue"
+      >
+        <Icon name="plus" size={variant === 'compact' ? 16 : 18} />
+        {variant === 'full' && <span>Add to queue</span>}
+      </button>
+      {variant === 'full' && (
+        <button type="button" class="btn btn-ghost" data-player-action="next" title="Play after the current item">
+          <Icon name="queue" size={18} />
+          <span>Play next</span>
+        </button>
+      )}
+    </div>
+  )
+}

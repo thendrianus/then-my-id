@@ -1,0 +1,48 @@
+---
+/** Small stroke icons, 24×24 grid. */
+const paths = {
+  play: '<path d="M7 4.8v14.4a.8.8 0 0 0 1.2.7l11.4-7.2a.8.8 0 0 0 0-1.4L8.2 4.1A.8.8 0 0 0 7 4.8Z" fill="currentColor" stroke="none"/>',
+  pause: '<rect x="6" y="4.5" width="4" height="15" rx="1" fill="currentColor" stroke="none"/><rect x="14" y="4.5" width="4" height="15" rx="1" fill="currentColor" stroke="none"/>',
+  prev: '<path d="M6 5v14"/><path d="M18 5.5v13a.6.6 0 0 1-.9.5L8.6 12.5a.6.6 0 0 1 0-1l8.5-6.5a.6.6 0 0 1 .9.5Z" fill="currentColor"/>',
+  next: '<path d="M18 5v14"/><path d="M6 5.5v13a.6.6 0 0 0 .9.5l8.5-6.5a.6.6 0 0 0 0-1L6.9 5a.6.6 0 0 0-.9.5Z" fill="currentColor"/>',
+  back: '<path d="M11 7 6 12l5 5"/><path d="M18 7l-5 5 5 5"/>',
+  forward: '<path d="M13 7l5 5-5 5"/><path d="M6 7l5 5-5 5"/>',
+  repeat: '<path d="m17 3 3 3-3 3"/><path d="M4 11V9a3 3 0 0 1 3-3h13"/><path d="m7 21-3-3 3-3"/><path d="M20 13v2a3 3 0 0 1-3 3H4"/>',
+  queue: '<path d="M4 6h12"/><path d="M4 11h12"/><path d="M4 16h7"/><path d="M15 14.5v6l5-3Z" fill="currentColor"/>',
+  shuffle: '<path d="M3 6h3.5a4 4 0 0 1 3.3 1.7l4.4 6.6A4 4 0 0 0 17.5 16H21"/><path d="m18 13 3 3-3 3"/><path d="M3 16h3.5a4 4 0 0 0 3.3-1.7l.4-.6"/><path d="M13.8 9.7l.4-.6A4 4 0 0 1 17.5 7H21"/><path d="m18 4 3 3-3 3"/>',
+  waves: '<path d="M2 8c2-1.5 3.5-1.5 5 0s3 1.5 5 0 3.5-1.5 5 0 3 1.5 5 0"/><path d="M2 13c2-1.5 3.5-1.5 5 0s3 1.5 5 0 3.5-1.5 5 0 3 1.5 5 0"/><path d="M2 18c2-1.5 3.5-1.5 5 0s3 1.5 5 0 3.5-1.5 5 0 3 1.5 5 0"/>',
+  plus: '<path d="M12 5v14"/><path d="M5 12h14"/>',
+  close: '<path d="M6 6l12 12"/><path d="M18 6 6 18"/>',
+  up: '<path d="m6 15 6-6 6 6"/>',
+  down: '<path d="m6 9 6 6 6-6"/>',
+  headphones: '<path d="M4 15v-3a8 8 0 0 1 16 0v3"/><rect x="3" y="14" width="5" height="7" rx="1.5"/><rect x="16" y="14" width="5" height="7" rx="1.5"/>',
+  music: '<path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/>',
+  book: '<path d="M12 6.5C10 5 7 4.5 3.5 5v13c3.5-.5 6.5 0 8.5 1.5 2-1.5 5-2 8.5-1.5V5C17 4.5 14 5 12 6.5Z"/><path d="M12 6.5v13"/>',
+  video: '<rect x="3" y="5" width="18" height="14" rx="3"/><path d="M10 9v6l5-3Z" fill="currentColor"/>',
+  list: '<path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><circle cx="4" cy="6" r="1" fill="currentColor"/><circle cx="4" cy="12" r="1" fill="currentColor"/><circle cx="4" cy="18" r="1" fill="currentColor"/>',
+  external: '<path d="M14 4h6v6"/><path d="M20 4 10 14"/><path d="M18 14v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4"/>',
+  search: '<circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/>',
+  rss: '<path d="M5 11a8 8 0 0 1 8 8"/><path d="M5 5a14 14 0 0 1 14 14"/><circle cx="6" cy="18" r="1.3" fill="currentColor"/>',
+} as const;
+
+interface Props {
+  name: keyof typeof paths;
+  size?: number;
+  class?: string;
+}
+const { name, size = 20, class: className } = Astro.props;
+---
+
+<svg
+  class:list={['icon', className]}
+  width={size}
+  height={size}
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="1.8"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  aria-hidden="true"
+  set:html={paths[name]}
+/>

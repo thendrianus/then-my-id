@@ -1,0 +1,117 @@
+---
+import { getEntry, render } from 'astro:content';
+import Icon from '../../components/Icon.astro';
+import PlayActions from '../../components/PlayActions.astro';
+import Base from '../../layouts/Base.astro';
+import { FORMAT_LABELS, formatDate, getPosts, type Post, postToItem, slugify } from '../../lib/content';
+
+export async function getStaticPaths() {
+  const posts = await getPosts();
+  return posts.map((post) => ({ params: { id: post.id }, props: { post, posts } }));
+}
+
+interface Props {
+  post: Post;
+  posts: Post[];
+}
+
+const { post, posts } = Astro.props;
+const { title, summary, date, updated, format, source, youtube, rating, tags, lang } = post.data;
+const categories = (await Promise.all(post.data.categories.map((c) => getEntry(c)))).filter((c) => c !== undefined);
+const { Content } = await render(post);
+
+// Previous / next within the main (first) category, so reading stays on topic.
+const mainCategory = post.data.categories[0].id;
+const siblings = posts.filter((p) => p.data.categories.some((c) => c.id === mainCategory));
+const at = siblings.findIndex((p) => p.id === post.id);
+const newer = siblings[at - 1];
+const older = siblings[at + 1];
+
+const words = (post.body ?? '').split(/\s+/).filter(Boolean).length;
+const minutes = Math.max(1, Math.round(words / 200));
+const formatIcon = format === 'video' || format === 'talk' ? 'video' : 'book';
+const item = postToItem(post);
+---
+
+<Base title={title} description={summary} type="article">
+  <article lang={lang}>
+    <header class="article-head">
+      <a class="badge" href={`/blog/?format=${format}`}><Icon name={formatIcon} size={14} />{FORMAT_LABELS[format]} summary</a>
+      <h1>{title}</h1>
+      <p class="lede">{summary}</p>
+      <div class="meta">
+        <time datetime={date.toISOString()}>{formatDate(date)}</time>
+        {updated && <span>Updated {formatDate(updated)}</span>}
+        <span>{minutes} min read</span>
+        {item.backsound && <span>Read with {item.backsound.name.toLowerCase()} in the background</span>}
+        {rating && <span class="stars" aria-label={`Rated ${rating} out of 5`}>{'★'.repeat(rating)}{'☆'.repeat(5 - rating)}</span>}
+      </div>
+      <PlayActions items={[item]} label="Listen" />
+    </header>
+
+    {
+      source && (source.title || source.url) && (
+        <aside class="source-box" aria-label="Original">
+          <Icon name={formatIcon} size={26} />
+          <div>
+            <strong>{source.title ?? source.url}</strong>
+            <span>
+              {source.author && <>by {source.author}</>}
+              {source.url && (
+                <>
+                  {source.author && ' · '}
+                  <a href={source.url} rel="noopener" target="_blank">
+                    {format === 'video' || format === 'talk' ? 'Watch' : 'Read'} the original <Icon name="external" size={13} />
+                  </a>
+                </>
+              )}
+            </span>
+          </div>
+        </aside>
+      )
+    }
+
+    {
+      youtube && (
+        <div class="video-embed">
+          <iframe
+            src={`https://www.youtube-nocookie.com/embed/${youtube}`}
+            title={`Video: ${source?.title ?? title}`}
+            loading="lazy"
+            allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen
+          />
+        </div>
+      )
+    }
+
+    <div class="prose">
+      <Content />
+    </div>
+
+    <footer class="post-foot">
+      <ul class="chips" aria-label="Categories and tags">
+        {categories.map((c) => <li><a class="chip cat" href={`/categories/${c.id}/`}>{c.data.name}</a></li>)}
+        {tags.map((t) => <li><a class="chip tag" href={`/tags/${slugify(t)}/`}>{t}</a></li>)}
+      </ul>
+      {
+        (newer || older) && (
+          <nav class="pager" aria-label={`More in ${categories[0]?.data.name}`}>
+            {older && (
+              <a href={`/blog/${older.id}/`}>
+                <span>← Older in {categories[0]?.data.name}</span>
+                {older.data.title}
+              </a>
+            )}
+            {newer && (
+              <a class="next" href={`/blog/${newer.id}/`}>
+                <span>Newer in {categories[0]?.data.name} →</span>
+                {newer.data.title}
+              </a>
+            )}
+          </nav>
+        )
+      }
+    </footer>
+  </article>
+</Base>

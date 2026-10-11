@@ -1,0 +1,48 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import { getHymns } from '../lib/content';
+
+const hymns = (await getHymns()).filter((h) => h.data.credit);
+const backsounds = (await getCollection('backsounds')).filter((b) => b.data.credit);
+---
+
+<Base title="Credits" description="Where the recordings on this site come from.">
+  <header class="page-head">
+    <h1>Credits</h1>
+    <p>The recordings on this site, and who made them.</p>
+  </header>
+
+  <div class="prose">
+    {
+      hymns.length > 0 && (
+        <>
+          <h2>Song recordings</h2>
+          <ul>
+            {hymns.map((h) => (
+              <li>
+                <a href={`/hymns/${h.id}/`}>{h.data.title}</a>:{' '}
+                {h.data.creditUrl ? <a href={h.data.creditUrl} rel="noopener">{h.data.credit}</a> : h.data.credit}
+              </li>
+            ))}
+          </ul>
+        </>
+      )
+    }
+    {
+      backsounds.length > 0 && (
+        <>
+          <h2>Background sounds</h2>
+          <ul>
+            {backsounds.map((b) => (
+              <li>
+                {b.data.name}:{' '}
+                {b.data.creditUrl ? <a href={b.data.creditUrl} rel="noopener">{b.data.credit}</a> : b.data.credit}
+              </li>
+            ))}
+          </ul>
+        </>
+      )
+    }
+  </div>
+</Base>
