@@ -236,6 +236,19 @@ main { flex: 1; }
   justify-content: center;
 }
 
+.play-groups { display: grid; gap: 0.75rem; }
+.play-group { display: grid; grid-template-columns: 7.5rem 1fr; align-items: center; gap: 0.5rem 1rem; }
+.play-group-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+@media (max-width: 44rem) {
+  .play-group { grid-template-columns: 1fr; }
+}
+
 .when-idle { display: inline-flex; }
 .when-playing { display: none; }
 [data-playing='true'] .btn-play .when-idle { display: none; }
@@ -508,6 +521,19 @@ main { flex: 1; }
 .lyrics h2, .lyrics h3 { font-size: 0.85rem; font-family: var(--font-ui); text-transform: uppercase; letter-spacing: 0.08em; color: var(--hymn); margin: 1.8rem 0 0.6rem; }
 .lyrics blockquote { margin: 0 0 1.4em; padding-left: 1.25rem; border-left: 3px solid var(--hymn-soft); font-style: italic; }
 .lyrics blockquote p { margin: 0; }
+
+.lyrics .song-notes { margin-top: 3rem; padding-top: 1.75rem; border-top: 1px solid var(--line); }
+.lyrics .song-notes h2 {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  text-transform: none;
+  letter-spacing: -0.01em;
+  color: var(--text);
+  margin: 2rem 0 0.6rem;
+}
+.lyrics .song-notes h2:first-child { margin-top: 0; }
+.lyrics .song-notes p { white-space: normal; margin: 0 0 1.1em; line-height: 1.7; }
+.lyrics .song-notes .sources { font-size: 0.9rem; color: var(--muted); }
 
 .post-foot {
   max-width: var(--measure);

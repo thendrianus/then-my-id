@@ -271,6 +271,7 @@ export function initPlayerUI() {
 function syncPageButtons(state: PlayerState) {
   const key = state.queue[state.index]?.key;
   const playing = state.status === 'playing' || state.status === 'loading';
+
   for (const host of document.querySelectorAll<HTMLElement>('[data-player-key]')) {
     const isCurrent = host.dataset.playerKey === key;
     host.classList.toggle('is-current', isCurrent);

@@ -1,7 +1,6 @@
 import type { APIRoute, GetStaticPaths } from 'astro';
-import { remark } from 'remark';
-import strip from 'strip-markdown';
 import { getPosts, type Post } from '../../lib/content';
+import { sentence, spokenLines } from '../../lib/spoken';
 
 /**
  * Plain-text version of each post, fetched by the player to read it aloud.
@@ -11,8 +10,6 @@ export const getStaticPaths = (async () => {
   const posts = await getPosts();
   return posts.map((post) => ({ params: { id: post.id }, props: { post } }));
 }) satisfies GetStaticPaths;
-
-const sentence = (s: string) => (/[.!?…:;"”’)]$/.test(s.trim()) ? s.trim() : `${s.trim()}.`);
 
 const same = (a = '', b = '') => a.trim().toLowerCase() === b.trim().toLowerCase();
 
@@ -34,13 +31,7 @@ function introFor(post: Post): string {
 export const GET: APIRoute = async ({ props }) => {
   const { post } = props as { post: Post };
   const { title, summary } = post.data;
-  const body = String(await remark().use(strip).process(post.body ?? ''))
-    // remark escapes Markdown characters (e.g. `1\.` in a heading); speech wants plain text.
-    .replace(/\\([\\`*_{}[\]()#+\-.!>~|])/g, '$1')
-    // Headings and list items have no full stop; give them one so voices end them naturally.
-    .split('\n')
-    .map((line) => (line.trim() ? sentence(line) : line))
-    .join('\n');
+  const body = await spokenLines(post.body ?? '', post.data.lang);
 
   const text = [sentence(title), introFor(post), sentence(summary), body].filter(Boolean).join('\n\n');
   return new Response(text, { headers: { 'Content-Type': 'text/plain; charset=utf-8' } });

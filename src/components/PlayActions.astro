@@ -16,7 +16,9 @@ interface Props {
   start?: number;
 }
 
-const { items, label = 'Play', variant = 'full', shuffle = false, start } = Astro.props;
+const { items: all, label = 'Play', variant = 'full', shuffle = false, start } = Astro.props;
+// A draft song with no recording yet has nothing to play.
+const items = all.filter((i) => i.audio || i.youtube || i.speech);
 const single = items.length === 1 ? items[0] : undefined;
 const what = single ? single.title : `${items.length} items`;
 ---

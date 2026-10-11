@@ -135,6 +135,8 @@ Optional intro text.
   pauses briefly between sentences and a little longer between paragraphs.
 - The site uses Astro's client router, so the player keeps going while you navigate. The queue, position and
   speed are saved in your browser, so a reload picks up where you left off.
+- A song page has two groups, each with Play / Add to queue / Play next: **Song** (the recording) and
+  **Lyrics & story** (the voice reads the lyrics verse by verse, then the story and author section).
 - Any list (hymns, a playlist, a category) can be played from any row, and **Add to queue** / **Play next** work everywhere.
 - Media keys and lock-screen controls work for audio and YouTube.
 

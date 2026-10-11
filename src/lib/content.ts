@@ -24,7 +24,7 @@ export async function getPosts(): Promise<Post[]> {
 }
 
 export async function getHymns(): Promise<Hymn[]> {
-  const hymns = await getCollection('hymns');
+  const hymns = await getCollection('hymns', (h) => import.meta.env.DEV || !h.data.draft);
   return hymns.sort((a, b) => a.data.title.localeCompare(b.data.title));
 }
 
@@ -93,6 +93,28 @@ export function hymnToItem(hymn: Hymn): PlayerItem {
   };
 }
 
+/** A song has something to read aloud when its Markdown body (lyrics, story…) isn't empty. */
+export function hymnHasText(hymn: Hymn): boolean {
+  return (hymn.body ?? '').trim().length > 0;
+}
+
+/**
+ * The "read the lyrics and story aloud" item for a song. It's a read-aloud item (kind "post"),
+ * so the player uses the speech voice, not the recording.
+ */
+export function hymnToTextItem(hymn: Hymn): PlayerItem {
+  const { title, lyricist, lang } = hymn.data;
+  return {
+    key: `hymn-text:${hymn.id}`,
+    kind: 'post',
+    title: `${title}: lyrics and story`,
+    subtitle: lyricist ?? 'Song',
+    href: `/hymns/${hymn.id}/`,
+    speech: `/speech/songs/${hymn.id}.txt`,
+    lang,
+  };
+}
+
 /** Resolve a playlist's references into the actual posts and hymns, in order. */
 export async function resolvePlaylist(playlist: CollectionEntry<'playlists'>) {
   const entries = await Promise.all(
@@ -102,7 +124,7 @@ export async function resolvePlaylist(playlist: CollectionEntry<'playlists'>) {
         return post && (import.meta.env.DEV || !post.data.draft) ? { kind: 'post' as const, entry: post } : undefined;
       }
       const hymn = await getEntry(ref.hymn);
-      return hymn ? { kind: 'hymn' as const, entry: hymn } : undefined;
+      return hymn && (import.meta.env.DEV || !hymn.data.draft) ? { kind: 'hymn' as const, entry: hymn } : undefined;
     }),
   );
   return entries.filter((e) => e !== undefined);

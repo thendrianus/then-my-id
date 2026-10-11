@@ -132,6 +132,11 @@ sentences that run on.
 
 ## Adding a song (hymn or music)
 
+**Every song gets four things**, not just a recording: the **lyrics** (when they may be shown), **the story
+behind the song**, **a short section about the author**, and the **recording** (or `draft: true` until
+there is one). The story and author section is part of the job every time, so don't wait to be asked for it.
+Follow the step-by-step list in "Song checklist" below.
+
 File: `src/content/hymns/<url-name>.md` → page at `/hymns/<url-name>/`, shown to visitors as **Songs**.
 (The folder and URLs say "hymns", but the site label is "Songs". Don't rename them unless asked.)
 
@@ -152,6 +157,7 @@ creditUrl: https://commons.wikimedia.org/wiki/File:…
 tags: [Grace, Assurance]                     # optional themes; each becomes a section on /hymns/
 lang: en                                     # en (default) or id
 added: 2026-09-01                            # required. YYYY-MM-DD, the day it was added
+draft: true                                  # optional. true = no recording yet; visible in `npm run dev` only
 ---
 
 1. First verse…
@@ -159,7 +165,13 @@ added: 2026-09-01                            # required. YYYY-MM-DD, the day it 
 
 Rules:
 
-- **A song must have `audio` or `youtube`**, or the build fails. If both are set, `audio` wins.
+- **A song must have `audio` or `youtube`**, or the build fails, unless it is a **draft**. If both are set,
+  `audio` wins. Use `draft: true` when the lyrics are ready but the recording isn't (e.g. the owner is still
+  generating it with an AI tool). A draft is left out of the production build and has no play button. When
+  the recording arrives, add `audio`/`performer`/`credit`, then delete the `draft: true` line.
+- Recordings generated with an AI tool (ElevenLabs, Suno, Udio…): credit the tool that was actually used (ask
+  the owner), e.g. `credit: Words by James Montgomery (1825), public domain. Recording generated with ElevenLabs.`
+  The owner is responsible for the tool's licence terms.
 - `audio` is either a file in `public/audio/` referenced as `/audio/<name>.mp3` (preferred: MP3, under
   about 20 MB, since GitHub rejects files over 100 MB), or a direct `https://` URL to an audio file.
   Prefer **MP3**, since Safari can't play `.ogg`. For Wikimedia Commons `.ogg`/`.wav` files, use the
@@ -194,6 +206,29 @@ Rules:
 - For a chorus, add a heading line `## Chorus` (it renders as a small label) and put the chorus text
   below it as a normal paragraph. Don't repeat the chorus after every verse; write it once.
 - No notes, chords or commentary in the lyrics; keep them clean.
+- **Every song page has two groups of buttons**, each with its own Play, Add to queue and Play next:
+  **Song** (the recording) and **Lyrics & story** (the voice reads the title, "Words by …", the lyrics verse
+  by verse, then the story and author section; the `<p class="sources">` line is skipped). Nothing to
+  configure. A song whose body is empty only gets the Song group, and a draft with no recording only gets
+  Lyrics & story. Scripture references like "Luke 22:19" are spoken as "Luke chapter 22, verse 19".
+- **Background story and about the author (required for every song).** After the lyrics, add a block wrapped in
+  `<section class="song-notes">` with a blank line after the opening tag and before the closing tag, so the
+  Markdown inside still renders. Use `## The story behind the hymn` and `## About <author>` headings. Finish
+  with a `<p class="sources">Sources: …</p>` paragraph with links. See `src/content/hymns/according-to-thy-gracious-word.md`.
+  - **Research it; don't write it from memory.** Search for the hymn's history (e.g. Hymnary.org) and the
+    author's life, and cross-check at least two sources. Include only facts the sources agree on; where they
+    differ (dates, spellings), say so in the sources line or leave the detail out.
+  - Write it in your own words. Don't paste biography text or long quotations.
+  - Mention if the lyrics are an abridged or edited version of the original (hymnals often drop stanzas).
+  - What to cover. **The story**: when and where it was written, what it is about, the Bible passage or
+    event behind it, how it is usually sung (tune, where it is used), and how the final line or refrain
+    works. **About the author**: where and when they lived, the main facts of their life, what else they are
+    known for, and when they died. Keep each section to about 3–5 short paragraphs, written to be heard
+    (see "Writing the body" for notes: short sentences, no lists, no symbols).
+  - **Copyrighted songs**: still write the story and author section (it's your own summary), but leave the
+    lyrics out. Never reproduce the lyrics, and say where to read them.
+  - **Unknown or obscure songs**: if you can't find reliable sources for the history, write only what you
+    can verify (author, year, source) and tell the owner what's missing instead of filling the gap.
 
 ### Copyright (important: the repo is public)
 
@@ -210,6 +245,32 @@ Rules:
 - Good sources for free recordings: Wikimedia Commons, Musopen, the Internet Archive, the Free Music
   Archive. Record the licence in `credit`.
 - If unsure about the status of either lyrics or audio, **ask the user** and say what you found.
+
+### Song checklist (do these in order)
+
+1. **Get from the owner**: the title, the lyrics (they usually paste them; if they don't, ask, or find a
+   public-domain source and ask them to confirm), and the recording (a file path such as one in
+   `~/Downloads`, or a YouTube link). Also ask **which tool made the recording** if it's AI-generated, so the
+   credit is right. Don't guess the tool.
+2. **Check the rights.** Is the text public domain? (Hymnary.org lists the status.) Is the pasted version the
+   original or an edited/abridged edition? Note it. If the lyrics are copyrighted, don't include them.
+3. **Research the story and the author** from at least two sources and write the `song-notes` section as
+   described above. Keep the sources line with links.
+4. **Create** `src/content/hymns/<url-name>.md` with the frontmatter, the lyrics, and the `song-notes`
+   section. If the recording isn't ready, add `draft: true`.
+5. **Add the recording.** Move (don't copy) the file the owner points to into `public/audio/<url-name>.<ext>`
+   with the song's file name. Inspect it first with `ffprobe` (`ffprobe -v error -show_entries
+   format=duration,size:stream=codec_type,codec_name -of default=nw=1 <file>`):
+   - Audio only (MP3, M4A, or an MP4 with just an AAC stream): rename to `.mp3` or `.m4a`, no conversion.
+   - Has a video track (an MP4/MOV with picture): extract the audio, e.g.
+     `ffmpeg -i in.mp4 -vn -c:a libmp3lame -q:a 2 public/audio/<url-name>.mp3`, and don't commit the video.
+   - Then set `audio: /audio/<url-name>.<ext>`, `performer`, `credit` (+ `creditUrl` if there is one), and
+     remove `draft: true`.
+6. **Verify**: `npm run check && npm run build`; read `dist/speech/songs/<url-name>.txt` to hear what the
+   voice will say (verses, then story, then author); then, with the dev server running, open
+   `/hymns/<url-name>/` and press **Play song** and **Play lyrics & story** to confirm both work. Reading
+   aloud can't be tested in the Claude app's built-in browser, so say so rather than claiming it was heard.
+7. **Report** the file paths, what the sources were, what you couldn't verify, and the credit line used.
 
 ## Playlists, categories, backsounds
 
@@ -240,7 +301,7 @@ Rules:
 2. **Fetch and verify** the source, YouTube ID, or audio URL. Don't guess.
 3. **Write the file** following the rules above, using an existing file as the pattern.
 4. **Run** `npm run check && npm run build`. Fix every error.
-5. **Check the spoken text** for notes (`dist/speech/<name>.txt`).
+5. **Check the spoken text**: for notes `dist/speech/<name>.txt`, for songs `dist/speech/songs/<name>.txt`.
 6. If the dev server is running, open the new page and (for songs) press play to confirm the audio loads.
 7. **Report** what you added, the file path, anything you assumed or couldn't verify, and any licence
    or credit the owner should know about. Don't commit or push unless asked.
@@ -255,6 +316,8 @@ Rules:
 | `src/lib/content.ts` | Helpers that turn notes/songs into player items |
 | `src/lib/player/` | The player: `engine.ts` (queue), `audio.ts`, `youtube.ts`, `speech.ts`, `backsound.ts`, `ui.ts` |
 | `src/pages/speech/[...id].txt.ts` | Builds the plain text the voice reads for each note |
+| `src/pages/speech/songs/[...id].txt.ts` | Same for songs: lyrics, then story and author |
+| `src/lib/spoken.ts` | Shared Markdown-to-speech helpers |
 | `src/components/Player.astro` | The player bar (persists across pages via `transition:persist`) |
 | `src/styles/global.css` | All styling |
 | `src/consts.ts` | Site title, description, optional `REPO_URL` for the footer |

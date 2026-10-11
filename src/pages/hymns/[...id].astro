@@ -2,7 +2,7 @@
 import { render } from 'astro:content';
 import PlayActions from '../../components/PlayActions.astro';
 import Base from '../../layouts/Base.astro';
-import { getHymns, type Hymn, hymnToItem } from '../../lib/content';
+import { getHymns, type Hymn, hymnHasText, hymnToItem, hymnToTextItem } from '../../lib/content';
 
 export async function getStaticPaths() {
   const hymns = await getHymns();
@@ -13,7 +13,7 @@ interface Props {
   hymn: Hymn;
 }
 const { hymn } = Astro.props;
-const { title, lyricist, composer, tune, year, performer, credit, creditUrl, tags, lang } = hymn.data;
+const { title, lyricist, composer, tune, year, performer, credit, creditUrl, tags, lang, audio, youtube, draft } = hymn.data;
 const { Content } = await render(hymn);
 const facts = [
   ['Words', lyricist],
@@ -41,7 +41,25 @@ const facts = [
           </dl>
         )
       }
-      <PlayActions items={[hymnToItem(hymn)]} label="Play" />
+      <div class="play-groups">
+        {
+          (audio || youtube) && (
+            <div class="play-group">
+              <span class="play-group-label">Song</span>
+              <PlayActions items={[hymnToItem(hymn)]} label="Play song" />
+            </div>
+          )
+        }
+        {
+          hymnHasText(hymn) && (
+            <div class="play-group">
+              <span class="play-group-label">Lyrics &amp; story</span>
+              <PlayActions items={[hymnToTextItem(hymn)]} label="Play lyrics & story" />
+            </div>
+          )
+        }
+      </div>
+      {draft && !audio && !youtube && <p class="credit">Draft: no recording yet, so this song is only visible while running <code>npm run dev</code>.</p>}
     </header>
 
     <div class="lyrics">

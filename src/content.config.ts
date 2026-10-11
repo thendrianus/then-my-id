@@ -84,9 +84,11 @@ const hymns = defineCollection({
       tags: z.array(z.string()).default([]),
       lang: z.string().default('en'),
       added: z.coerce.date(),
+      /** true = work in progress (e.g. no recording yet): visible in `npm run dev` only. */
+      draft: z.boolean().default(false),
     })
-    .refine((h) => h.audio || h.youtube, {
-      message: 'A hymn needs either `audio` or `youtube` so it can be played.',
+    .refine((h) => h.draft || h.audio || h.youtube, {
+      message: 'A hymn needs either `audio` or `youtube` so it can be played (or set `draft: true` until it has one).',
     }),
 });
 
