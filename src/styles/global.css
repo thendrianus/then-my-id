@@ -603,6 +603,108 @@ dl.facts dd { margin: 0; }
 .playlist-card p { margin: 0; color: var(--muted); font-size: 0.92rem; }
 .playlist-card .mix { font-size: 0.82rem; color: var(--muted); }
 
+/* ---------- challenges ---------- */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+dl.facts > div:not([hidden]) { display: contents; }
+
+.challenge-card {
+  height: 100%;
+  display: grid;
+  align-content: start;
+  gap: 0.6rem;
+  padding: 1.1rem 1.2rem;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  position: relative;
+}
+.challenge-card:hover { border-color: var(--post); }
+.challenge-card h3 { margin: 0; }
+.challenge-card h3 a { text-decoration: none; }
+.challenge-card h3 a::after { content: ''; position: absolute; inset: 0; border-radius: inherit; }
+.challenge-card p { margin: 0; color: var(--muted); font-size: 0.92rem; }
+.challenge-card .badge.done { color: var(--focus); }
+
+.challenge-progress { display: grid; gap: 0.4rem; }
+.challenge-progress.lg { max-width: var(--measure); }
+.challenge-count { display: flex; align-items: baseline; gap: 0.4rem; margin: 0; color: var(--muted); font-size: 0.92rem; }
+.challenge-count strong { color: var(--text); font-family: var(--font-display); font-size: 1.35rem; font-variant-numeric: tabular-nums; }
+.challenge-progress.lg .challenge-count strong { font-size: 2.2rem; }
+.challenge-count .pct { margin-left: auto; font-weight: 600; color: var(--post); font-variant-numeric: tabular-nums; }
+.challenge-bar { height: 0.5rem; border-radius: 999px; background: var(--surface-2); overflow: hidden; }
+.challenge-progress.lg .challenge-bar { height: 0.75rem; }
+.challenge-bar span { display: block; height: 100%; min-width: 0.5rem; border-radius: inherit; background: var(--post); }
+.challenge-progress.complete .challenge-bar span { background: var(--focus); }
+.challenge-progress.complete .pct { color: var(--focus); }
+
+.challenge-rule { margin-bottom: 1.5rem; }
+.challenge-section { margin-top: 2.5rem; }
+
+.cal-legend {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.1rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.cal-legend li { display: inline-flex; align-items: center; gap: 0.4rem; }
+.cal-swatch { width: 0.9rem; height: 0.9rem; border-radius: 4px; border: 1px solid var(--line); background: var(--surface); }
+.cal-swatch.done { background: var(--post); border-color: var(--post); }
+.cal-swatch.missed { background: var(--accent-soft); border-color: color-mix(in srgb, var(--accent) 40%, var(--line)); }
+.cal-swatch.today { box-shadow: inset 0 0 0 2px var(--focus); border-color: var(--focus); }
+.cal-swatch.finish { border: 2px dashed var(--post); }
+
+.cal-months {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+  gap: 1.25rem;
+}
+.cal-month {
+  padding: 0.9rem 1rem 1rem;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+.cal-month h3 { font-size: 1rem; margin: 0 0 0.6rem; }
+.cal-month table { width: 100%; border-collapse: separate; border-spacing: 3px; table-layout: fixed; }
+.cal-month th { font-size: 0.7rem; font-weight: 600; color: var(--muted); padding-bottom: 0.2rem; }
+.cal-month td {
+  position: relative;
+  aspect-ratio: 1;
+  text-align: center;
+  vertical-align: middle;
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
+  border-radius: 6px;
+  background: var(--surface-2);
+  color: var(--text);
+  padding: 0;
+}
+.cal-month td:empty { background: transparent; }
+.cal-month td.out { background: transparent; color: color-mix(in srgb, var(--muted) 55%, transparent); }
+.cal-month td.done { color: var(--bg); font-weight: 600; }
+.cal-month td.done.l1 { background: color-mix(in srgb, var(--post) 35%, var(--surface-2)); color: var(--text); }
+.cal-month td.done.l2 { background: color-mix(in srgb, var(--post) 60%, var(--surface-2)); }
+.cal-month td.done.l3 { background: color-mix(in srgb, var(--post) 80%, var(--surface-2)); }
+.cal-month td.done.l4 { background: var(--post); }
+.cal-month td.missed { background: var(--accent-soft); color: var(--accent); }
+.cal-month td.finish { box-shadow: inset 0 0 0 2px var(--post); background: transparent; }
+.cal-month td.today { box-shadow: inset 0 0 0 2px var(--focus); }
+
+.challenge-notes { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.9rem; max-width: var(--measure); }
+.challenge-notes time { font-weight: 600; }
+.challenge-notes p { margin: 0.2rem 0 0; }
+
 /* ---------- player ---------- */
 .player {
   position: fixed;

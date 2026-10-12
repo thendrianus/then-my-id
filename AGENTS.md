@@ -293,6 +293,38 @@ Rules:
   `credit` (+`creditUrl`) unless it's the owner's own. Only add sounds that are free to use. Ambient piano
   and nature sounds work best; avoid anything with vocals or a strong beat.
 
+## Challenges
+
+File: `src/content/challenges/<url-name>.md` → page at `/challenges/<url-name>/` with a progress bar and a calendar.
+The owner usually asks either to **start a challenge** or to **log progress** ("I did it today", "ran 5 km yesterday").
+
+```yaml
+---
+title: 100 Days of Intermittent Fasting   # required
+summary: One or two sentences.            # required; shown on cards and under the title
+rule: Only lunch. No breakfast and no dinner.   # optional: what makes a day count
+target: 100                               # required: the total, in `unit`s
+unit: days                                # required: unit of measure, plural (days, times, hours, km, pages…)
+schedule: daily                           # daily (one per day, in a row; missed days show) | flexible (any days, any amounts)
+start: 2026-10-11                         # required
+end: 2026-12-31                           # optional deadline (mostly for flexible)
+log:                                      # the progress. Each line is one of:
+  - 2026-10-11                            #   a day, counting 1
+  - 2026-10-13..2026-10-20                #   every day in a range, 1 each
+  - { date: 2026-10-21, amount: 5, note: Long run. }   # a custom amount and/or a note
+---
+
+Optional body: why I'm doing it, how it's going.
+```
+
+- **Logging progress**: append to `log` in date order. Use the owner's dates; turn "today"/"yesterday" into real
+  dates (check today's date). A log date before `start` fails the build. Collapse long runs of single days into a
+  range if the list gets long.
+- The total is the sum of all amounts, so a flexible challenge is done when the amounts add up to `target`.
+- "Today", missed days and a broken streak are worked out in the visitor's browser, so the page stays correct between
+  deploys. Everything else (total, percent, planned finish) is computed at build time.
+- Don't invent the owner's reasons in the body; if they gave none, keep it factual.
+
 ## Workflow when asked to add content
 
 1. **Collect the inputs**: for a note, the source (link/title/author), format, the owner's own
@@ -310,7 +342,8 @@ Rules:
 
 | Path | What it is |
 |---|---|
-| `src/content/{posts,hymns,playlists}/` | Content (Markdown) |
+| `src/content/{posts,hymns,playlists,challenges}/` | Content (Markdown) |
+| `src/lib/challenges.ts` | Challenge progress, streaks and calendar months |
 | `src/content/{categories,backsounds}.yaml` | Shared lists that notes refer to by key |
 | `src/content.config.ts` | Schemas for all content (the source of truth for frontmatter) |
 | `src/lib/content.ts` | Helpers that turn notes/songs into player items |

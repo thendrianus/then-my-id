@@ -1,10 +1,12 @@
 ---
 import { getCollection } from 'astro:content';
+import ChallengeCard from '../components/ChallengeCard.astro';
 import Icon from '../components/Icon.astro';
 import MediaList from '../components/MediaList.astro';
 import PlayActions from '../components/PlayActions.astro';
 import PostCard from '../components/PostCard.astro';
 import Base from '../layouts/Base.astro';
+import { challengeStats, getChallenges } from '../lib/challenges';
 import { getCategories, getHymns, getPosts, hymnToItem, postsInCategory, postToItem, resolvePlaylist } from '../lib/content';
 
 const posts = await getPosts();
@@ -15,6 +17,8 @@ const categories = (await getCategories())
 const playlists = await Promise.all(
   (await getCollection('playlists')).map(async (p) => ({ playlist: p, entries: await resolvePlaylist(p) })),
 );
+
+const currentChallenges = (await getChallenges()).filter((c) => !challengeStats(c).complete);
 
 const latest = posts.slice(0, 5);
 const hymnItems = hymns.map(hymnToItem);
@@ -44,7 +48,25 @@ const listenToLatest = latest.map(postToItem);
     </section>
 
     <div>
-      <section aria-labelledby="hymns">
+      {
+        currentChallenges.length > 0 && (
+          <section aria-labelledby="challenges">
+            <div class="section-head">
+              <h2 id="challenges">{currentChallenges.length === 1 ? 'Current challenge' : 'Current challenges'}</h2>
+              <a href="/challenges/">All →</a>
+            </div>
+            <ul class="card-list">
+              {currentChallenges.map((challenge) => (
+                <li>
+                  <ChallengeCard challenge={challenge} />
+                </li>
+              ))}
+            </ul>
+          </section>
+        )
+      }
+
+      <section aria-labelledby="hymns" class:list={{ section: currentChallenges.length > 0 }}>
         <div class="section-head">
           <h2 id="hymns">Songs</h2>
           <a href="/hymns/">All songs →</a>

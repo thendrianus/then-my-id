@@ -1,0 +1,28 @@
+---
+import ChallengeCard from '../../components/ChallengeCard.astro';
+import Base from '../../layouts/Base.astro';
+import { getChallenges } from '../../lib/challenges';
+
+const challenges = await getChallenges();
+---
+
+<Base title="Challenges" description="Personal challenges I'm working through, tracked day by day.">
+  <header class="page-head">
+    <h1>Challenges</h1>
+    <p>Things I'm testing myself on, with a target and a calendar of the days I've done them.</p>
+  </header>
+
+  {
+    challenges.length === 0 ? (
+      <p class="empty">No challenges yet.</p>
+    ) : (
+      <ul class="cat-grid challenge-grid">
+        {challenges.map((challenge) => (
+          <li>
+            <ChallengeCard challenge={challenge} />
+          </li>
+        ))}
+      </ul>
+    )
+  }
+</Base>

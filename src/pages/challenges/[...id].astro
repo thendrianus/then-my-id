@@ -1,0 +1,130 @@
+---
+import { render } from 'astro:content';
+import ChallengeCalendar from '../../components/ChallengeCalendar.astro';
+import ChallengeProgress from '../../components/ChallengeProgress.astro';
+import Base from '../../layouts/Base.astro';
+import { type Challenge, challengeStats, formatAmount, formatDay, getChallenges } from '../../lib/challenges';
+
+export async function getStaticPaths() {
+  const challenges = await getChallenges();
+  return challenges.map((challenge) => ({ params: { id: challenge.id }, props: { challenge } }));
+}
+
+interface Props {
+  challenge: Challenge;
+}
+const { challenge } = Astro.props;
+const { title, summary, rule, unit, schedule, end } = challenge.data;
+const stats = challengeStats(challenge);
+const { Content } = await render(challenge);
+const notes = [...stats.days].filter(([, d]) => d.notes.length > 0);
+const until = schedule === 'daily' ? stats.finish : end && stats.finish;
+const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
+---
+
+<Base title={title} description={summary}>
+  <header class="article-head">
+    <p class="eyebrow"><a href="/challenges/">Challenges</a></p>
+    <h1>{title}</h1>
+    <p class="lede">{summary}</p>
+    {
+      rule && (
+        <div class="source-box challenge-rule">
+          <div>
+            <span>The rule</span>
+            <strong>{rule}</strong>
+          </div>
+        </div>
+      )
+    }
+    <ChallengeProgress stats={stats} unit={unit} size="lg" />
+  </header>
+
+  <dl class="facts">
+    <dt>Started</dt>
+    <dd>{formatDay(stats.start)}</dd>
+    <dt>Schedule</dt>
+    <dd>{schedule === 'daily' ? 'Every day, in a row' : 'Any day, any amount, until the total is reached'}</dd>
+    {
+      stats.complete ? (
+        <>
+          <dt>Completed</dt>
+          <dd>{stats.lastLogged && formatDay(stats.lastLogged)}</dd>
+        </>
+      ) : (
+        <>
+          <dt>Still to go</dt>
+          <dd>{formatAmount(stats.remaining, unit)}</dd>
+        </>
+      )
+    }
+    {
+      schedule === 'daily' && !stats.complete && stats.finish && (
+        <>
+          <dt>On track to finish</dt>
+          <dd>{formatDay(stats.finish)}</dd>
+        </>
+      )
+    }
+    {
+      schedule === 'flexible' && end && (
+        <>
+          <dt>Deadline</dt>
+          <dd>{formatDay(stats.finish!)}</dd>
+        </>
+      )
+    }
+    {
+      schedule === 'daily' && stats.lastLogged && (
+        <>
+          {!stats.complete && (
+            <>
+              <dt>Current streak</dt>
+              <dd>
+                <span data-streak-last={stats.lastLogged} data-streak-broken="0 days">
+                  {plural(stats.currentStreak, 'day')}
+                </span>
+              </dd>
+            </>
+          )}
+          <dt>Best streak</dt>
+          <dd>{plural(stats.bestStreak, 'day')}</dd>
+          <div data-missed-row hidden>
+            <dt>Missed</dt>
+            <dd>
+              <span data-missed-count>0 days</span>
+            </dd>
+          </div>
+        </>
+      )
+    }
+  </dl>
+
+  <section class="section challenge-section">
+    <h2>Calendar</h2>
+    <ChallengeCalendar stats={stats} unit={unit} schedule={schedule} until={until} />
+  </section>
+
+  {
+    notes.length > 0 && (
+      <section class="section challenge-section">
+        <h2>Log notes</h2>
+        <ul class="challenge-notes">
+          {notes.map(([day, d]) => (
+            <li>
+              <time datetime={day}>{formatDay(day)}</time>
+              <span class="muted"> · {formatAmount(d.amount, unit)}</span>
+              {d.notes.map((n) => (
+                <p>{n}</p>
+              ))}
+            </li>
+          ))}
+        </ul>
+      </section>
+    )
+  }
+
+  <div class="prose section">
+    <Content />
+  </div>
+</Base>

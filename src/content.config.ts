@@ -104,4 +104,45 @@ const playlists = defineCollection({
   }),
 });
 
-export const collections = { categories, backsounds, posts, hymns, playlists };
+/**
+ * One line of a challenge's log. Three ways to write it:
+ *   - 2026-10-12                                   one day, amount 1
+ *   - 2026-10-01..2026-10-10                       every day in a range, amount 1 each
+ *   - { date: 2026-10-12, amount: 5, note: … }     a custom amount and/or a note
+ */
+const logEntry = z.union([
+  z.object({
+    date: z.coerce.date(),
+    amount: z.number().positive().default(1),
+    note: z.string().optional(),
+  }),
+  z.string().regex(/^\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}$/, 'A range looks like 2026-10-01..2026-10-10'),
+  z.coerce.date(),
+]);
+
+/** Personal challenges with a target (e.g. 100 days) and a dated log, shown on a calendar. */
+const challenges = defineCollection({
+  loader: glob({ base: './src/content/challenges', pattern: '**/*.md' }),
+  schema: z
+    .object({
+      title: z.string(),
+      /** One or two sentences, shown on cards and under the title. */
+      summary: z.string(),
+      /** The rule for a day to count, in a sentence (e.g. "Only lunch: no breakfast and no dinner."). */
+      rule: z.string().optional(),
+      /** How much in total, in `unit`s. */
+      target: z.number().positive(),
+      /** Unit of measure, plural: days, times, hours, km, pages, books… */
+      unit: z.string(),
+      /** daily = one per day, in a row (missed days show on the calendar). flexible = any days, any amounts, until the total is reached. */
+      schedule: z.enum(['daily', 'flexible']).default('daily'),
+      start: z.coerce.date(),
+      /** Optional deadline (mostly for flexible challenges). */
+      end: z.coerce.date().optional(),
+      log: z.array(logEntry).default([]),
+      draft: z.boolean().default(false),
+    })
+    .refine((c) => !c.end || c.end >= c.start, { message: '`end` must be on or after `start`.' }),
+});
+
+export const collections = { categories, backsounds, posts, hymns, playlists, challenges };

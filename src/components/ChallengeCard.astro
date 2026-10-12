@@ -1,0 +1,21 @@
+---
+import { type Challenge, challengeStats, formatDay } from '../lib/challenges';
+import ChallengeProgress from './ChallengeProgress.astro';
+
+interface Props {
+  challenge: Challenge;
+}
+const { challenge } = Astro.props;
+const stats = challengeStats(challenge);
+---
+
+<div class="challenge-card">
+  <span class:list={['badge', { done: stats.complete }]}>
+    {stats.complete ? 'Completed' : 'In progress'} · since {formatDay(stats.start)}
+  </span>
+  <h3>
+    <a href={`/challenges/${challenge.id}/`}>{challenge.data.title}</a>
+  </h3>
+  <p>{challenge.data.summary}</p>
+  <ChallengeProgress stats={stats} unit={challenge.data.unit} />
+</div>

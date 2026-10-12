@@ -126,6 +126,29 @@ items:
 Optional intro text.
 ```
 
+### A challenge
+
+Create `src/content/challenges/<url-name>.md`, then add a line to `log` each time you make progress:
+
+```markdown
+---
+title: 100 Days of Intermittent Fasting
+summary: A hundred days in a row, lunch only.
+rule: Only lunch. No breakfast and no dinner.
+target: 100
+unit: days              # any unit: days, times, hours, km, pages…
+schedule: daily         # daily (in a row) or flexible (any days, any amounts)
+start: 2026-10-11
+log:
+  - 2026-10-11                          # one day = 1
+  - 2026-10-12..2026-10-20              # a range of days, 1 each
+  - { date: 2026-10-21, amount: 5, note: Optional note }
+---
+```
+
+The page shows the total against the target, a calendar of done (and, for daily challenges, missed) days,
+streaks, and the planned finish date.
+
 ## How the player works
 
 - **Hymns** play through an `<audio>` element (files) or a small floating YouTube player (YouTube requires it to stay visible).

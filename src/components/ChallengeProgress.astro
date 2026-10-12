@@ -1,0 +1,28 @@
+---
+import { type ChallengeStats, formatAmount, formatNumber } from '../lib/challenges';
+
+interface Props {
+  stats: ChallengeStats;
+  unit: string;
+  size?: 'sm' | 'lg';
+}
+const { stats, unit, size = 'sm' } = Astro.props;
+---
+
+<div class:list={['challenge-progress', size, { complete: stats.complete }]}>
+  <p class="challenge-count">
+    <strong>{formatNumber(stats.done)}</strong>
+    <span>of {formatAmount(stats.target, unit)}</span>
+    <span class="pct">{stats.percent}%</span>
+  </p>
+  <div
+    class="challenge-bar"
+    role="progressbar"
+    aria-valuemin="0"
+    aria-valuemax={stats.target}
+    aria-valuenow={Math.min(stats.done, stats.target)}
+    aria-label={`${formatAmount(stats.done, unit)} of ${formatAmount(stats.target, unit)}`}
+  >
+    <span style={`width:${stats.percent}%`}></span>
+  </div>
+</div>
