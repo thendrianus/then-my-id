@@ -512,6 +512,30 @@ main { flex: 1; }
   border-radius: 5px;
 }
 .prose hr { border: 0; border-top: 1px solid var(--line); margin: 2rem 0; }
+.prose table {
+  width: 100%;
+  margin: 1.5rem 0;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.95em;
+  line-height: 1.45;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.prose th, .prose td { padding: 0.65rem 0.9rem; text-align: left; vertical-align: top; }
+.prose th {
+  font-family: var(--font-ui);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--post);
+  background: var(--post-soft);
+}
+.prose td { border-top: 1px solid var(--line); }
+.prose td:first-child { font-weight: 600; }
 
 .lyrics { font-family: var(--font-prose); font-size: 1.15rem; line-height: 1.65; max-width: var(--measure); }
 .lyrics p { margin: 0 0 1.4em; white-space: pre-line; }
