@@ -7,7 +7,7 @@ unit: days
 schedule: daily
 start: 2026-10-11
 log:
-  - 2026-10-11..2026-10-18
+  - 2026-10-11..2026-10-20
 ---
 
 ## How it works
