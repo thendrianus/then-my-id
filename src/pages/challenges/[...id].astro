@@ -20,6 +20,11 @@ const { Content } = await render(challenge);
 const notes = [...stats.days].filter(([, d]) => d.notes.length > 0);
 const until = schedule === 'daily' ? stats.finish : end && stats.finish;
 const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
+const scheduleText = {
+  daily: 'Every day, in a row',
+  weekly: 'One week at a time, until the total is reached',
+  flexible: 'Any day, any amount, until the total is reached',
+}[schedule];
 ---
 
 <Base title={title} description={summary}>
@@ -44,7 +49,7 @@ const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
     <dt>Started</dt>
     <dd>{formatDay(stats.start)}</dd>
     <dt>Schedule</dt>
-    <dd>{schedule === 'daily' ? 'Every day, in a row' : 'Any day, any amount, until the total is reached'}</dd>
+    <dd>{scheduleText}</dd>
     {
       stats.complete ? (
         <>
@@ -67,7 +72,7 @@ const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
       )
     }
     {
-      schedule === 'flexible' && end && (
+      schedule !== 'daily' && end && (
         <>
           <dt>Deadline</dt>
           <dd>{formatDay(stats.finish!)}</dd>

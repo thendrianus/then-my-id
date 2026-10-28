@@ -134,10 +134,12 @@ const challenges = defineCollection({
       target: z.number().positive(),
       /** Unit of measure, plural: days, times, hours, km, pages, books… */
       unit: z.string(),
-      /** daily = one per day, in a row (missed days show on the calendar). flexible = any days, any amounts, until the total is reached. */
-      schedule: z.enum(['daily', 'flexible']).default('daily'),
+      /** daily = one per day, in a row (missed days show on the calendar). weekly = one log entry per week; a range
+       *  like 2026-10-19..2026-10-25 shades the whole week but counts once. flexible = any days, any amounts, until the
+       *  total is reached. */
+      schedule: z.enum(['daily', 'weekly', 'flexible']).default('daily'),
       start: z.coerce.date(),
-      /** Optional deadline (mostly for flexible challenges). */
+      /** Optional deadline (mostly for weekly and flexible challenges). */
       end: z.coerce.date().optional(),
       log: z.array(logEntry).default([]),
       draft: z.boolean().default(false),

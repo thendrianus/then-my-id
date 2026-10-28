@@ -305,9 +305,9 @@ summary: One or two sentences.            # required; shown on cards and under t
 rule: Only lunch. No breakfast and no dinner.   # optional: what makes a day count
 target: 100                               # required: the total, in `unit`s
 unit: days                                # required: unit of measure, plural (days, times, hours, km, pages…)
-schedule: daily                           # daily (one per day, in a row; missed days show) | flexible (any days, any amounts)
+schedule: daily                           # daily (one per day, in a row; missed days show) | weekly (one entry per week) | flexible (any days, any amounts)
 start: 2026-10-11                         # required
-end: 2026-12-31                           # optional deadline (mostly for flexible)
+end: 2026-12-31                           # optional deadline (mostly for weekly and flexible)
 log:                                      # the progress. Each line is one of:
   - 2026-10-11                            #   a day, counting 1
   - 2026-10-13..2026-10-20                #   every day in a range, 1 each
@@ -321,6 +321,8 @@ Optional body: why I'm doing it, how it's going.
   dates (check today's date). A log date before `start` fails the build. Collapse long runs of single days into a
   range if the list gets long.
 - The total is the sum of all amounts, so a flexible challenge is done when the amounts add up to `target`.
+- **Weekly** challenges (`schedule: weekly`, `unit: weeks`): log each finished week as a range of its days,
+  Monday to Sunday (`- 2026-10-19..2026-10-25`). The whole week is shaded on the calendar but counts as one week.
 - "Today", missed days and a broken streak are worked out in the visitor's browser, so the page stays correct between
   deploys. Everything else (total, percent, planned finish) is computed at build time.
 - Don't invent the owner's reasons in the body; if they gave none, keep it factual.

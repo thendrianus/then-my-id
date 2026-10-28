@@ -4,14 +4,14 @@ summary: Reading through the Bible in one year, one week's reading at a time, fo
 rule: A week counts when I finish that week's Bible reading.
 target: 52
 unit: weeks
-schedule: flexible
+schedule: weekly
 start: 2026-10-19
 end: 2027-10-17
 log:
-  - { date: 2026-10-28, note: Week 1 (19 to 25 October). }
+  - 2026-10-19..2026-10-25
 ---
 
 ## How it works
 
 A week counts when I finish that week's Bible reading. The goal is fifty-two weeks, from the week of
-19 October 2026 to 17 October 2027. Each finished week is logged on the day I complete it.
+19 October 2026 to 17 October 2027. Each finished week is logged as its seven days, Monday to Sunday.

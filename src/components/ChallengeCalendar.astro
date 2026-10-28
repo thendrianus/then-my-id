@@ -4,7 +4,7 @@ import { type ChallengeStats, formatAmount, formatDay } from '../lib/challenges'
 interface Props {
   stats: ChallengeStats;
   unit: string;
-  schedule: 'daily' | 'flexible';
+  schedule: 'daily' | 'weekly' | 'flexible';
   /** Last day that belongs to the challenge (planned finish or deadline); later days are dimmed. */
   until?: string;
 }
@@ -12,8 +12,8 @@ const { stats, unit, schedule, until } = Astro.props;
 const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 const maxAmount = Math.max(1, ...[...stats.days.values()].map((d) => d.amount));
 
-/** Flexible challenges shade a day by how much was done, in four steps. */
-const level = (amount: number) => (schedule === 'daily' ? 4 : Math.max(1, Math.ceil((amount / maxAmount) * 4)));
+/** Flexible challenges shade a day by how much was done, in four steps; daily and weekly days are simply done. */
+const level = (amount: number) => (schedule !== 'flexible' ? 4 : Math.max(1, Math.ceil((amount / maxAmount) * 4)));
 ---
 
 <div class="challenge-calendar" data-challenge-calendar data-schedule={schedule}>

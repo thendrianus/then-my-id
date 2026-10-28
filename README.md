@@ -137,7 +137,7 @@ summary: A hundred days in a row, lunch only.
 rule: Only lunch. No breakfast and no dinner.
 target: 100
 unit: days              # any unit: days, times, hours, km, pages…
-schedule: daily         # daily (in a row) or flexible (any days, any amounts)
+schedule: daily         # daily (in a row), weekly (one entry per week) or flexible (any days, any amounts)
 start: 2026-10-11
 log:
   - 2026-10-11                          # one day = 1

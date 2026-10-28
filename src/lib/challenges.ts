@@ -26,7 +26,7 @@ export interface ChallengeStats {
   start: DayKey;
   /** Last day with a log entry, if any. */
   lastLogged?: DayKey;
-  /** Daily: the day the target is reached if no more days are missed. Flexible: the deadline, if set. */
+  /** Daily: the day the target is reached if no more days are missed. Weekly and flexible: the deadline, if set. */
   finish?: DayKey;
   /** Daily only: consecutive days ending on the last logged day. */
   currentStreak: number;
@@ -69,9 +69,11 @@ export async function getChallenges(): Promise<Challenge[]> {
   });
 }
 
-/** Turns the log (single days, ranges, or entries with amounts) into one total per day. */
-function collectDays(c: Challenge): Map<DayKey, LoggedDay> {
+/** Turns the log (single days, ranges, or entries with amounts) into one total per day, plus the overall total. */
+function collectDays(c: Challenge): { days: Map<DayKey, LoggedDay>; done: number } {
+  const weekly = c.data.schedule === 'weekly';
   const days = new Map<DayKey, LoggedDay>();
+  let done = 0;
   const add = (k: DayKey, amount: number, note?: string) => {
     const day = days.get(k) ?? { amount: 0, notes: [] };
     day.amount += amount;
@@ -80,19 +82,27 @@ function collectDays(c: Challenge): Map<DayKey, LoggedDay> {
   };
 
   for (const entry of c.data.log) {
-    if (entry instanceof Date) add(toKey(entry), 1);
-    else if (typeof entry === 'string') {
+    if (entry instanceof Date) {
+      add(toKey(entry), 1);
+      done += 1;
+    } else if (typeof entry === 'string') {
       const [from, to] = entry.split('..');
       if (to < from) throw new Error(`Challenge "${c.id}": the range ${entry} ends before it starts.`);
-      for (let k = from; k <= to; k = addDays(k, 1)) add(k, 1);
-    } else add(toKey(entry.date), entry.amount, entry.note);
+      let n = 0;
+      for (let k = from; k <= to; k = addDays(k, 1), n++) add(k, 1);
+      // A weekly range is one week, however many days it shades.
+      done += weekly ? 1 : n;
+    } else {
+      add(toKey(entry.date), entry.amount, entry.note);
+      done += entry.amount;
+    }
   }
 
   const start = toKey(c.data.start);
   for (const k of days.keys()) {
     if (k < start) throw new Error(`Challenge "${c.id}": the log has ${k}, which is before the start date ${start}.`);
   }
-  return new Map([...days].sort(([a], [b]) => a.localeCompare(b)));
+  return { days: new Map([...days].sort(([a], [b]) => a.localeCompare(b))), done };
 }
 
 function streaks(keys: DayKey[]): { current: number; best: number } {
@@ -133,9 +143,8 @@ function calendarMonths(from: DayKey, to: DayKey): CalendarMonth[] {
 
 export function challengeStats(c: Challenge): ChallengeStats {
   const { target, schedule } = c.data;
-  const days = collectDays(c);
+  const { days, done } = collectDays(c);
   const keys = [...days.keys()];
-  const done = [...days.values()].reduce((sum, d) => sum + d.amount, 0);
   const remaining = Math.max(0, target - done);
   const complete = done >= target;
   const start = toKey(c.data.start);
