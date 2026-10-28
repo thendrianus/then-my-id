@@ -7,7 +7,8 @@ unit: weeks
 schedule: flexible
 start: 2026-10-19
 end: 2027-10-17
-log: []
+log:
+  - { date: 2026-10-28, note: Week 1 (19 to 25 October). }
 ---
 
 ## How it works
